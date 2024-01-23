@@ -2,32 +2,39 @@
     <div class="card-container">
         <div class="card-bg">
             <div class="input-field">
-                <input type="text" placeholder="search your city" />
-                <img src="../assets/search.png" alt="search-img" />
+                <input type="text" ref="searchInput" v-model="cityName"  placeholder="search your city" />
+                <button @click="focusSearchInput">
+                    <img src="../assets/search.png" alt="search-img" />
+                </button>
             </div>
             <div class="img-container">
-                <img src="../assets/clouds.png" alt="clouds">
-                <h1>22°C</h1>
-                <h2>Mumbai</h2>
+                <img v-if="isSmokeWeather" src="../assets/clear.png" alt="clouds">
+                <img v-else-if="isHazeWeather" src="../assets/mist.png" alt="clouds">
+                <!-- <img v-if="isClearWeather" src="../assets/clear.png" alt="clouds"> -->
+                <img v-else src="../assets/clouds.png" alt="clouds">
+                <h1>{{ weatherData?.main?.temp  }}°C</h1>
+                <h2>{{ weatherData?.name  }}</h2>
             </div>
             <div class="weather-container">
                 <div class="left-container">
                     <img src="../assets/humidity.png" alt="">
                     <div class="left-text">
-                        <h2>50%</h2>
+                        <h2>{{ weatherData?.main?.humidity }}%</h2>
                         <h2>Humidity</h2>
                     </div>
                 </div>
                 <div class="right-container">
                     <img src="../assets/wind.png" alt="">
-                    <div class="right-text" >
-                        <h2>15 km/hr</h2>
+                    <div class="right-text">
+                        <h2>{{ weatherData?.wind?.speed }} km/hr</h2>
                         <h2>Wind Speed</h2>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <h1>{{ weatherData }}</h1>
 </template>
 
 
@@ -38,30 +45,76 @@ export default {
     name: "ApiCall",
     data() {
         return {
-            weatherData: []
+            weatherData: [],
+            cityName: 'Mumbai',
+            apiUrl: 'https://api.openweathermap.org/data/2.5/weather',
+            apiKey: 'f2b068dd1e4d035bcd5c74bc40d3685b'
         }
     },
-    mounted() {
-        const apiKey = "f2b068dd1e4d035bcd5c74bc40d3685b";
-        const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
-        const cityName = "mumbai"; // Replace with the desired city name
-
-        axios
-            .get(apiUrl, {
+    methods: {
+        focusSearchInput() {
+            //  this.$refs.searchInput.focus();
+            console.log('this.cityName...?',this.cityName);
+            axios.get(this.apiUrl, {
                 params: {
-                    q: cityName,
-                    appid: apiKey,
+                    q: this.cityName,
+                    appid: this.apiKey,
                     units: "metric", // You can adjust units as needed (metric, imperial, etc.)
                 },
-            })
-            .then((response) => {
-                console.log('respones...weatheropenApi..', response);
-                this.weatherData = response.data;
-            })
-            .catch((error) => {
-                console.error("Error fetching weather data:", error);
-            });
+            }).then((response) => {
+                    console.log('respones...weatheropenApi..', response);
+                    this.weatherData = response.data;
+                })
+                .catch((error) => {
+                    console.error("Error fetching weather data:", error);
+                });
+        }
+    },
+    computed:{
+        isSmokeWeather(){
+            let flag = false;
+            if(this.weatherData?.weather?.length>0){
+              flag = this.weatherData?.weather[0]?.main === 'Smoke' || this.weatherData?.weather[0]?.main === 'Clear' ;
+            }
+            return flag;
+        },
+        isHazeWeather(){
+            let flag = false;
+            if(this.weatherData?.weather?.length>0){
+              flag = this.weatherData?.weather[0]?.main === 'Haze';
+            }
+            return flag;
+        },
+        // isClearWeather(){
+        //    let flag = false;
+        //     if(this.weatherData?.weather?.length>0){
+        //       flag = this.weatherData?.weather[0]?.main === 'Clear';
+        //     }
+        //     return flag; 
+        // }
     }
+    // this approach whenever component load on dom
+    // mounted() {
+    //     const apiKey = "f2b068dd1e4d035bcd5c74bc40d3685b";
+    //     const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
+    //     const cityName = "mumbai"; // Replace with the desired city name
+    //     // this.cityName = "mumbai"
+
+    //     axios.get(apiUrl, {
+    //         params: {
+    //             q: cityName,
+    //             appid: apiKey,
+    //             units: "metric", // You can adjust units as needed (metric, imperial, etc.)
+    //         },
+    //     })
+    //         .then((response) => {
+    //             console.log('respones...weatheropenApi..', response);
+    //             this.weatherData = response.data;
+    //         })
+    //         .catch((error) => {
+    //             console.error("Error fetching weather data:", error);
+    //         });
+    // }
 }
 </script>
 
@@ -76,8 +129,10 @@ export default {
 
     background-color: #fa0707;
 } */
-body{
+body {
     all: unset;
+    background-color: #eaeaea;
+
 }
 
 
@@ -87,9 +142,8 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    /* height: 100vh; */
     /* Set the container height to 100% of the viewport height */
-    background-color: #eaeaea;
     /* Your background color */
 }
 
@@ -102,7 +156,7 @@ body{
 
 }
 
-.input-field{
+.input-field {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -118,79 +172,91 @@ body{
     border: none;
 }
 
-.input-field img{
-    width: 7%;
+.input-field img {
+    width: 100%;
 }
 
-.img-container img{
+.input-field button {
+    outline: none;
+    background: none;
+    border: none;
+    width: 10%;
+}
+
+.img-container img {
     width: 40%;
 }
 
-.img-container h1{
+.img-container h1 {
     font-size: 3vw;
     font-stretch: expanded;
     font-family: Georgia, 'Times New Roman', Times, serif;
     margin: 0;
 }
 
-.img-container h2{
+.img-container h2 {
     font-size: 1vw;
     font-stretch: expanded;
     font-family: Georgia, 'Times New Roman', Times, serif;
     margin: 1vw;
 }
 
-.weather-container{
+.weather-container {
     display: flex;
     width: 100%;
     justify-content: center;
     align-items: center;
+    gap: 3rem;
 }
 
-.left-container{
+.left-container {
     display: flex;
     gap: 1vw;
 }
 
-.left-container img{
+.left-container img {
     width: 30%;
-    height: 8vh;
+    height: 7vh;
 }
 
-.left-container .left-text{
+.left-container .left-text {
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
-    /* align-items: center; */
+    justify-content: space-between;
+    align-items: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
-.left-text h2{
+.left-text h2 {
     margin: 0;
     text-align: center;
     font-size: 14px;
 }
 
-.right-container{
+.right-container {
     display: flex;
     gap: 1vw;
 }
 
-.right-container img{
+.right-container img {
     width: 30%;
-    height: 8vh;
+    height: 7vh;
 }
 
-.right-container .right-text{
+.right-container .right-text {
     display: flex;
     flex-direction: column;
-    /* justify-content: center; */
-    /* align-items: center; */
+    justify-content: space-between;
+    align-items: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
-.right-text h2{
+.right-text h2 {
     margin: 0;
     text-align: center;
     font-size: 14px;
 }
-
 </style>
+
+<!-- weather api url -->
+<!-- https://www.youtube.com/watch?v=MIYQR-Ybrn4 -->
