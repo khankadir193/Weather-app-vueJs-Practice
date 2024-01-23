@@ -8,10 +8,12 @@
                 </button>
             </div>
             <div class="img-container">
-                <img v-if="isSmokeWeather" src="../assets/clear.png" alt="clouds">
-                <img v-else-if="isHazeWeather" src="../assets/mist.png" alt="clouds">
-                <!-- <img v-if="isClearWeather" src="../assets/clear.png" alt="clouds"> -->
-                <img v-else src="../assets/clouds.png" alt="clouds">
+                <img v-if="isClearWeather" src="../assets/clear.png" alt="clear">
+                <img v-else-if="isRainWeather" src="../assets/rain.png" alt="rain">
+                <img v-else-if="isCloudWeather" src="../assets/clouds.png" alt="clouds">
+                <img v-else-if="isDrizzleWeather" src="../assets/drizzle.png" alt="dizzle">
+                <img v-else-if="isMistWeather" src="../assets/mist.png" alt="mist">
+
                 <h1>{{ weatherData?.main?.temp  }}°C</h1>
                 <h2>{{ weatherData?.name  }}</h2>
             </div>
@@ -71,50 +73,64 @@ export default {
         }
     },
     computed:{
-        isSmokeWeather(){
+       isClearWeather(){
             let flag = false;
             if(this.weatherData?.weather?.length>0){
-              flag = this.weatherData?.weather[0]?.main === 'Smoke' || this.weatherData?.weather[0]?.main === 'Clear' ;
+              flag = this.weatherData?.weather[0]?.main === 'Clear' ;
             }
             return flag;
         },
-        isHazeWeather(){
+        isRainWeather(){
             let flag = false;
             if(this.weatherData?.weather?.length>0){
-              flag = this.weatherData?.weather[0]?.main === 'Haze';
+              flag = this.weatherData?.weather[0]?.main === 'Rain';
             }
             return flag;
         },
-        // isClearWeather(){
-        //    let flag = false;
-        //     if(this.weatherData?.weather?.length>0){
-        //       flag = this.weatherData?.weather[0]?.main === 'Clear';
-        //     }
-        //     return flag; 
-        // }
-    }
+        isCloudWeather(){
+            let flag = false;
+            if(this.weatherData?.weather?.length>0){
+              flag = this.weatherData?.weather[0]?.main === 'Clouds' || this.weatherData?.weather[0]?.main === 'Smoke';
+            }
+            return flag; 
+        },
+        isDrizzleWeather(){
+            let flag = false;
+            if(this.weatherData?.weather?.length>0){
+              flag = this.weatherData?.weather[0]?.main === 'Drizzle';
+            }
+            return flag; 
+        },
+        isMistWeather(){
+            let flag = false;
+            if(this.weatherData?.weather?.length>0){
+              flag = this.weatherData?.weather[0]?.main === 'Mist' || this.weatherData?.weather[0]?.main === 'Haze';
+            }
+            return flag; 
+        },
+    },
     // this approach whenever component load on dom
-    // mounted() {
-    //     const apiKey = "f2b068dd1e4d035bcd5c74bc40d3685b";
-    //     const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
-    //     const cityName = "mumbai"; // Replace with the desired city name
-    //     // this.cityName = "mumbai"
+    mounted() {
+        const apiKey = "f2b068dd1e4d035bcd5c74bc40d3685b";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
+        const cityName = "mumbai"; // Replace with the desired city name
+        // this.cityName = "mumbai"
 
-    //     axios.get(apiUrl, {
-    //         params: {
-    //             q: cityName,
-    //             appid: apiKey,
-    //             units: "metric", // You can adjust units as needed (metric, imperial, etc.)
-    //         },
-    //     })
-    //         .then((response) => {
-    //             console.log('respones...weatheropenApi..', response);
-    //             this.weatherData = response.data;
-    //         })
-    //         .catch((error) => {
-    //             console.error("Error fetching weather data:", error);
-    //         });
-    // }
+        axios.get(apiUrl, {
+            params: {
+                q: cityName,
+                appid: apiKey,
+                units: "metric", // You can adjust units as needed (metric, imperial, etc.)
+            },
+        })
+            .then((response) => {
+                console.log('respones...weatheropenApi..', response);
+                this.weatherData = response.data;
+            })
+            .catch((error) => {
+                console.error("Error fetching weather data:", error);
+            });
+    }
 }
 </script>
 
@@ -134,10 +150,6 @@ body {
     background-color: #eaeaea;
 
 }
-
-
-
-
 .card-container {
     display: flex;
     justify-content: center;
@@ -260,3 +272,6 @@ body {
 
 <!-- weather api url -->
 <!-- https://www.youtube.com/watch?v=MIYQR-Ybrn4 -->
+
+<!-- extra weather status -->
+<!-- Haze,Smoke -->
